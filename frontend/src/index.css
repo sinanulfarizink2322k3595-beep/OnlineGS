@@ -1,0 +1,41 @@
+/*
+ * index.css - Global Styles
+ *
+ * These three @tailwind directives inject Tailwind's generated CSS:
+ *   base        - Normalizes default browser styles (like a modern CSS reset)
+ *   components  - Reusable component classes (none by default, but plugins add them)
+ *   utilities   - All the utility classes (flex, p-4, text-blue-500, etc.)
+ *
+ * Keep this file minimal; prefer Tailwind class names directly in JSX.
+ */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom base overrides */
+@layer base {
+  body {
+    @apply bg-gray-50 text-gray-900 antialiased;
+  }
+
+  /* Smooth scrolling across the app */
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* Quill rich-text editor overrides so it fits within our design */
+@layer components {
+  .ql-container {
+    @apply font-sans text-base;
+  }
+
+  .ql-toolbar {
+    @apply border-gray-300 rounded-t-lg;
+  }
+
+  .ql-container.ql-snow {
+    @apply border-gray-300 rounded-b-lg;
+  }
+}
