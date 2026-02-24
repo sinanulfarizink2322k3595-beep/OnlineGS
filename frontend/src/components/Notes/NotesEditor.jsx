@@ -124,7 +124,7 @@ const NotesEditor = ({ groupId }) => {
     autoSaveIntervalRef.current = setInterval(() => {
       // We access `hasUnsavedChanges` indirectly via `saveNote`'s closure
       saveNote(false);
-    }, 30_000); // 30 000 ms = 30 seconds
+    }, 30_000); // 30_000 ms = 30 seconds
 
     // Clear interval when component unmounts to prevent memory leaks
     return () => clearInterval(autoSaveIntervalRef.current);

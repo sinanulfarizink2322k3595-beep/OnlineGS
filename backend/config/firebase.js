@@ -1,5 +1,5 @@
 /**
- * firebase.js - Firebase Admin SDK Initialization
+ * config/firebase.js - Firebase Admin SDK Initialization
  *
  * This file sets up the Firebase Admin SDK, which gives us privileged access
  * to Firebase services (Firestore, Auth, etc.) from the server side.
