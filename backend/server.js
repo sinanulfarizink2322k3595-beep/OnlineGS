@@ -19,6 +19,7 @@ const express = require("express");
 const http = require("http"); // Node's built-in HTTP module (needed for Socket.io)
 const { Server } = require("socket.io"); // Socket.io server class
 const cors = require("cors"); // Cross-Origin Resource Sharing
+const rateLimit = require("express-rate-limit"); // Brute-force / DDoS protection
 
 // Import route handlers
 const authRoutes = require("./routes/auth");
@@ -59,14 +60,39 @@ app.use(express.json({ limit: "2mb" }));
 // Parse URL-encoded form data (standard HTML form submissions)
 app.use(express.urlencoded({ extended: true }));
 
+// ── Rate Limiting ──────────────────────────────────────────────────────────
+/**
+ * Strict limiter for auth endpoints – prevents brute-force attacks on login/register.
+ * Allows 20 requests per 15-minute window per IP.
+ */
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: "Too many requests from this IP. Please try again later." },
+});
+
+/**
+ * General API limiter – applied to all other /api routes.
+ * Allows 200 requests per 15-minute window per IP.
+ */
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 200,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: "Too many requests from this IP. Please try again later." },
+});
+
 // ── 4. Mount Route Modules ────────────────────────────────────────────────────
 // All routes are prefixed with /api so they're easy to proxy in production.
 
-app.use("/api/auth", authRoutes);     // Authentication (register, login, Google)
-app.use("/api/groups", groupRoutes);  // Study group management
-app.use("/api/chat", chatRoutes);     // Chat messages
-app.use("/api/notes", notesRoutes);   // Shared notes
-app.use("/api/tasks", taskRoutes);    // Task management
+app.use("/api/auth", authLimiter, authRoutes);    // Authentication (register, login, Google)
+app.use("/api/groups", apiLimiter, groupRoutes);  // Study group management
+app.use("/api/chat", apiLimiter, chatRoutes);     // Chat messages
+app.use("/api/notes", apiLimiter, notesRoutes);   // Shared notes
+app.use("/api/tasks", apiLimiter, taskRoutes);    // Task management
 
 // Health-check endpoint – useful for load balancers and uptime monitors
 app.get("/health", (_req, res) => {
